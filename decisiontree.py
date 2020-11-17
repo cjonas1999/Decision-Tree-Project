@@ -2,6 +2,7 @@ import math
 
 class DecisionTree:
 	def __init__(self, meta_filename, training_filename):
+		self.attribute_names = []
 		self.attributes = [] #the classifications are the last item in self.attributes
 		self.training_set = []
 		self.tree = None
@@ -23,6 +24,7 @@ class DecisionTree:
 
 			self.attributes.append(set())
 
+			self.attribute_names.append(n[0])
 			for val in n[1].split(','):
 				self.attributes[i].add(val)
 			
@@ -129,7 +131,7 @@ class DecisionTree:
 			i += 1
 		
 		maxIndex = gain_attr.index(max(gain_attr))
-		newNode = TreeNode(maxIndex)
+		newNode = self.TreeNode(maxIndex)
 
 		#determine which can be classified or not
 		notClassified = []
@@ -191,22 +193,22 @@ class DecisionTree:
 
 
 
-class TreeNode:
-	def __init__(self, val):
-		self.val = val
-		self.children = {}
-		self.classification = {}
-	
-	def insert(self, newNode, edgeName):
-		self.children[edgeName] = newNode
-		self.classification[edgeName] = None
-	
-	def classify(self, classification, edgeName):
-		self.children[edgeName] = None
-		self.classification[edgeName] = classification
-	
-	def get(self, edgeName):
-		return self.children[edgeName]
+	class TreeNode:
+		def __init__(self, val):
+			self.val = val
+			self.children = {}
+			self.classification = {}
+		
+		def insert(self, newNode, edgeName):
+			self.children[edgeName] = newNode
+			self.classification[edgeName] = None
+		
+		def classify(self, classification, edgeName):
+			self.children[edgeName] = None
+			self.classification[edgeName] = classification
+		
+		def get(self, edgeName):
+			return self.children[edgeName]
 
 
 
@@ -215,7 +217,8 @@ def main():
 
 	metafile = input("Enter meta file name:")
 	trainingfile = input("Enter training file name:")
-	b = DecisionTree(metafile, trainingfile)
+	d = DecisionTree(metafile, trainingfile)
+	print(d)
 '''
 	while running:
 		choice = input("\n\n1 to train.\n2 to classify a file.\n3 to calculate accuracy.\n4 to exit\nEnter choice: ")
