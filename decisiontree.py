@@ -13,8 +13,7 @@ class DecisionTree:
 		#given = ["" for _ in range(len(self.attributes)-1)]
 		given = []
 		self.tree = self.generateTree(given)
-		
-		
+
 	
 	def readMetaFile(self, meta_filename):
 		meta_f = open(meta_filename, "r")
@@ -43,6 +42,7 @@ class DecisionTree:
 		
 		#print(self.training_set)
     
+
 	def generateTree(self, given):#given = array of tuples, of attribute index and value
 		newNode = None
 		
@@ -50,9 +50,9 @@ class DecisionTree:
 		info_class = 0
 		total_rows = 0
 
-		class_counts = {}
+		class_totals = {}
 		for classification in self.attributes[-1]:
-			class_counts[classification] = 0
+			class_totals[classification] = 0
 		
 		for i in range(len(self.training_set)):
 			line = self.training_set[i]
@@ -64,14 +64,19 @@ class DecisionTree:
 			if skip:
 				continue
 			else:
-				class_counts[line[-1]] += 1
+				class_totals[line[-1]] += 1
 				total_rows += 1
 
-		for count in class_counts.values():
+		for count in class_totals.values():
 			if count > 0:
 				info_class -= count/total_rows * math.log(count/total_rows, 2)
 
 		
+		#Check if there are existing examples
+		if total_rows == 0:
+			return None
+
+
 		#Calculate GAIN for each attribute
 		gain_attr = []
 		attr_counts = []
@@ -148,7 +153,12 @@ class DecisionTree:
 		
 		for attr in notClassified:
 			newGiven = given + [(maxIndex, attr)]
-			newNode.insert(self.generateTree(newGiven), attr)
+			childNode = self.generateTree(newGiven)
+			if childNode == None:
+				maxClass = max(class_totals, key=class_totals.get)
+				newNode.classify(maxClass, attr)
+			else:
+				newNode.insert(childNode, attr)
 
 		return newNode		
 
