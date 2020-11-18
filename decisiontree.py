@@ -14,6 +14,27 @@ class DecisionTree:
 		given = []
 		self.tree = self.generateTree(given)
 
+
+	def __str__(self)
+		'''for i in range(len(self.attributes)):
+			print(self.attribute_names[i], self.attributes[i])
+		print("\n")'''
+		return "\n".join(self.treeStringHelper(self.tree, 0))
+		
+	
+	def treeStringHelper(self, node, height):			
+		lines = []
+		lines.append("   "*height + self.attribute_names[node.val])
+
+		for attr in self.attributes[node.val]: 
+			lines.append("   "*height + "= " + attr)
+			if node.children[attr] == None:
+				lines.append("   "*(height+2) + node.classification[attr])
+			else:
+				lines = lines + self.treeStringHelper(node.children[attr], height+1)
+		
+		return lines
+
 	
 	def readMetaFile(self, meta_filename):
 		meta_f = open(meta_filename, "r")
