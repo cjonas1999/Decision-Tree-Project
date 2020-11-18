@@ -16,9 +16,6 @@ class DecisionTree:
 
 
 	def __str__(self)
-		'''for i in range(len(self.attributes)):
-			print(self.attribute_names[i], self.attributes[i])
-		print("\n")'''
 		return "\n".join(self.treeStringHelper(self.tree, 0))
 		
 	
