@@ -233,7 +233,7 @@ class DecisionTree:
 
 		for line in infile:
 			splitline = line.strip().split(',')
-			classification = self.bestprobability(splitline)
+			classification = self.bestprobability(self.tree, splitline)
 
 			if classification == splitline[-1]:
 				correct += 1
@@ -273,6 +273,8 @@ def main():
 	infile = input("Enter test file name:")
 	outfile = input("Enter output file name:")
 	d.classifyFile(infile, outfile)
+	filename = input("Enter test file name:")
+	print(d.calculateAccuracy(filename))
 '''
 	while running:
 		choice = input("\n\n1 to train.\n2 to classify a file.\n3 to calculate accuracy.\n4 to exit\nEnter choice: ")
