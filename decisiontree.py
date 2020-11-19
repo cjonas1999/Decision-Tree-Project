@@ -211,6 +211,8 @@ class DecisionTree:
 					a_tt = attr
                     
 					while(skip):
+						if(node.children[a_tt] == None):
+							return node.classification[att]
 						node = node.children[a_tt]
 						name = self.attribute_names[node.val]
 						index = self.attribute_names.index(name)
@@ -277,7 +279,6 @@ def main():
 			metafile = input("Enter meta file name:")
 			trainingfile = input("Enter training file name:")
 			d = DecisionTree(metafile, trainingfile)
-			print(b)
 
 		elif choice == "2":
 			infile = input("Enter test file name:")
