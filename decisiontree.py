@@ -269,33 +269,30 @@ def main():
 	metafile = input("Enter meta file name:")
 	trainingfile = input("Enter training file name:")
 	d = DecisionTree(metafile, trainingfile)
-	print(d)
-	infile = input("Enter test file name:")
-	outfile = input("Enter output file name:")
-	d.classifyFile(infile, outfile)
-	filename = input("Enter test file name:")
-	print(d.calculateAccuracy(filename))
-'''
+
 	while running:
-		choice = input("\n\n1 to train.\n2 to classify a file.\n3 to calculate accuracy.\n4 to exit\nEnter choice: ")
+		choice = input("\n\n1 to train.\n2 to classify a file.\n3 to calculate accuracy.\n4 to print the decision tree\n5 to exit\nEnter choice: ")
 
 		if choice == "1":
 			metafile = input("Enter meta file name:")
 			trainingfile = input("Enter training file name:")
-			b = DecisionTree(metafile, trainingfile)
+			d = DecisionTree(metafile, trainingfile)
 			print(b)
 
 		elif choice == "2":
 			infile = input("Enter test file name:")
 			outfile = input("Enter output file name:")
-			b.classifyFile(infile, outfile)
+			d.classifyFile(infile, outfile)
 
 		elif choice == "3":
 			infile = input("Enter test file name:")
-			accuracy = b.calculateAccuracy(infile)
+			accuracy = d.calculateAccuracy(infile)
 			print(f"{infile} was {accuracy*100}% accurate")
 
 		elif choice == "4":
+			print(d)
+		
+		elif choice == "5":
 			running = False
-'''
+
 main()
