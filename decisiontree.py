@@ -10,14 +10,15 @@ class DecisionTree:
 		self.readMetaFile(meta_filename)
 		self.createTrainingSet(training_filename)
 
+		#given = ["" for _ in range(len(self.attributes)-1)]
 		given = []
 		self.tree = self.generateTree(given)
 
 
-	def __str__(self)
+	def __str__(self):
 		return "\n".join(self.treeStringHelper(self.tree, 0))
-		
-	
+
+
 	def treeStringHelper(self, node, height):			
 		lines = []
 		lines.append("   "*height + self.attribute_names[node.val])
@@ -28,10 +29,10 @@ class DecisionTree:
 				lines.append("   "*(height+2) + node.classification[attr])
 			else:
 				lines = lines + self.treeStringHelper(node.children[attr], height+1)
-		
+
 		return lines
 
-	
+
 	def readMetaFile(self, meta_filename):
 		meta_f = open(meta_filename, "r")
 		i = 0
@@ -43,12 +44,12 @@ class DecisionTree:
 			self.attribute_names.append(n[0])
 			for val in n[1].split(','):
 				self.attributes[i].add(val)
-			
+
 			i += 1
-		
+
 		meta_f.close()
 		#print(self.attributes)
-	
+
 
 	def createTrainingSet(self, training_filename):
 		train_f = open(training_filename, "r")
@@ -56,13 +57,13 @@ class DecisionTree:
 			formatted_line = line.strip().split(',')
 			self.training_set.append(formatted_line)
 		train_f.close()
-		
+
 		#print(self.training_set)
     
 
 	def generateTree(self, given):#given = array of tuples, of attribute index and value
 		newNode = None
-		
+
 		#Calculate INFO(D) for classification
 		info_class = 0
 		total_rows = 0
@@ -70,14 +71,14 @@ class DecisionTree:
 		class_totals = {}
 		for classification in self.attributes[-1]:
 			class_totals[classification] = 0
-		
+
 		for i in range(len(self.training_set)):
 			line = self.training_set[i]
 			skip = False
 			for g in given:
 				if line[g[0]] != g[1]:
 					skip = True
-			
+
 			if skip:
 				continue
 			else:
@@ -88,7 +89,7 @@ class DecisionTree:
 			if count > 0:
 				info_class -= count/total_rows * math.log(count/total_rows, 2)
 
-		
+
 		#Check if there are existing examples
 		if total_rows == 0:
 			return None
@@ -111,7 +112,7 @@ class DecisionTree:
 				attr_counts.append({})
 				class_counts.append({})
 				continue
-		
+
 			info = 0
 			attr_count = {}
 			class_count = {}
@@ -121,7 +122,7 @@ class DecisionTree:
 
 				for classification in self.attributes[-1]:
 					class_count[attr][classification] = 0
-			
+
 			for line in self.training_set:
 				skip_line = False
 				for g in given:
@@ -131,7 +132,7 @@ class DecisionTree:
 					continue
 				attr_count[line[i]] += 1
 				class_count[line[i]][line[-1]] += 1
-			
+
 
 			for attr, attr_total in attr_count.items():
 				if attr_total == 0:
@@ -141,17 +142,17 @@ class DecisionTree:
 					ratio = class_count[attr][classification]/attr_total
 					if ratio > 0:
 						newinfo -= ratio * math.log(ratio, 2)
-				
+
 				info += newinfo * attr_total/total_rows
-			
-			
+
+
 			attr_counts.append(attr_count)
 			class_counts.append(class_count)
 
 			gain_attr.append(info_class - info)
 
 			i += 1
-		
+
 		maxIndex = gain_attr.index(max(gain_attr))
 		newNode = self.TreeNode(maxIndex)
 
@@ -162,12 +163,12 @@ class DecisionTree:
 			for classification, count in class_count.items():
 				if count > 0:
 					aboveZero.append(classification)
-			
+
 			if len(aboveZero) == 1:
 				newNode.classify(aboveZero[0], attr)
 			else:
 				notClassified.append(attr)
-		
+
 		for attr in notClassified:
 			newGiven = given + [(maxIndex, attr)]
 			childNode = self.generateTree(newGiven)
@@ -185,20 +186,43 @@ class DecisionTree:
 		outf = open(outfile_name, "w+")
 		for line in inf:
 			indword = line.strip().split(',')
-			classification = self.bestprobability(indword)
+			classification = self.bestprobability(self.tree, indword)
 
-			for word in indword:
-				if(word not in self.attributes[-1]):
-					outf.write(word)
-					outf.write(",")
+			for word in indword[:-1]:
+				outf.write(word)
+				outf.write(",")
 			outf.write(classification+'\n')
          
 		inf.close()
 		outf.close()
     
     
-	def bestprobability(self, idword):
-		pass
+	def bestprobability(self, node, idword):
+		name = self.attribute_names[node.val]
+		index = self.attribute_names.index(name)
+        
+		for attr in self.attributes[node.val]:
+			if(attr == idword[index]):
+				#print(attr)
+				if(node.children[attr] == None):
+					return node.classification[attr]
+				else:
+					skip = True
+					a_tt = attr
+                    
+					while(skip):
+						node = node.children[a_tt]
+						name = self.attribute_names[node.val]
+						index = self.attribute_names.index(name)
+                        
+						for att in self.attributes[node.val]:
+							a_tt = att
+							if(att == idword[index]):
+								#print(att)
+								if(node.children[att] == None):
+									return node.classification[att]
+									skip = False
+
                     
                     
 	def calculateAccuracy(self, filename):
@@ -206,7 +230,7 @@ class DecisionTree:
 		incorrect = 0
 
 		infile = open(filename, "r")
-		
+
 		for line in infile:
 			splitline = line.strip().split(',')
 			classification = self.bestprobability(splitline)
@@ -215,7 +239,7 @@ class DecisionTree:
 				correct += 1
 			else:
 				incorrect += 1
-		
+
 		return correct/(correct + incorrect)
 
 
@@ -225,15 +249,15 @@ class DecisionTree:
 			self.val = val
 			self.children = {}
 			self.classification = {}
-		
+
 		def insert(self, newNode, edgeName):
 			self.children[edgeName] = newNode
 			self.classification[edgeName] = None
-		
+
 		def classify(self, classification, edgeName):
 			self.children[edgeName] = None
 			self.classification[edgeName] = classification
-		
+
 		def get(self, edgeName):
 			return self.children[edgeName]
 
@@ -245,29 +269,31 @@ def main():
 	metafile = input("Enter meta file name:")
 	trainingfile = input("Enter training file name:")
 	d = DecisionTree(metafile, trainingfile)
-
+	print(d)
+	infile = input("Enter test file name:")
+	outfile = input("Enter output file name:")
+	d.classifyFile(infile, outfile)
+'''
 	while running:
-		choice = input("\n\n1 to train.\n2 to classify a file.\n3 to calculate accuracy.\n4 to print the decision tree\n5 to exit\nEnter choice: ")
+		choice = input("\n\n1 to train.\n2 to classify a file.\n3 to calculate accuracy.\n4 to exit\nEnter choice: ")
 
 		if choice == "1":
 			metafile = input("Enter meta file name:")
 			trainingfile = input("Enter training file name:")
-			d = DecisionTree(metafile, trainingfile)
-		
+			b = DecisionTree(metafile, trainingfile)
+			print(b)
+
 		elif choice == "2":
 			infile = input("Enter test file name:")
 			outfile = input("Enter output file name:")
-			d.classifyFile(infile, outfile)
-		
+			b.classifyFile(infile, outfile)
+
 		elif choice == "3":
 			infile = input("Enter test file name:")
-			accuracy = d.calculateAccuracy(infile)
+			accuracy = b.calculateAccuracy(infile)
 			print(f"{infile} was {accuracy*100}% accurate")
-		
-		elif choice == "4":
-			print(d)
-		
-		elif choice == "5":
-			running = False
 
+		elif choice == "4":
+			running = False
+'''
 main()
